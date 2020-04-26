@@ -19,7 +19,7 @@ config2 = Config(overrides={'user': user,'connect_kwargs':{'password':'1'}, 'sud
 c2 = Connection(host=remote_host, config=config2, gateway=c1)
 
 all_connections = []
-vms = ['192.168.122.86','192.168.122.65','192.168.122.208']
+vms = ['192.168.122.137','192.168.122.189','192.168.122.208']
 for i in vms:
     all_connections.append(Connection(host=i, config=config2, gateway=c1))
 
@@ -44,7 +44,38 @@ def spark_test():
     c2.run('source ~/.bashrc && env',replace_env=False)
 
 def restart_all_vms():
+    ## not complete
     for connection in all_connections:
         # connection.reboot(wait=120,command='reboot',use_sudo=True)
         # connection.run('sudo reboot', watchers=[sudopass])
         connection.sudo('reboot')
+
+def transfer_monitor():
+    for connection in all_connections:
+        connection.run('rm monitor.py')
+        connection.run('rm -rf logs')
+        transfer = Transfer(connection)
+        transfer.put('monitor.py')
+        connection.run('mkdir logs')
+
+def transfer_logs_out():
+    counter = 1
+    for connection in all_connections:
+        transfer = Transfer(connection)
+        transfer.get('logs/log.csv','log'+str(counter)+'.csv')
+        counter+=1
+
+def start_monitors():
+    for connection in all_connections:
+        connection.run('nohup python3 ./monitor.py $1 >/dev/null 2>&1 &')
+
+def stop_monitors():
+    for connection in all_connections:
+        connection.run('pid=$(cat logs/pid) && kill -SIGTERM $pid')
+
+
+def test_pids():
+    for connection in all_connections:
+        pid = connection.run('cat logs/pid')
+        print(type(pid))
+
