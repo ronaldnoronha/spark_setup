@@ -1,5 +1,5 @@
 # Import Fabric's API module
-from fabric.api import run, env, settings, remote_tunnel
+from fabric.api import sudo
 from fabric.operations import reboot
 from fabric2 import Connection, Config
 from invoke import Responder
@@ -20,6 +20,7 @@ c2 = Connection(host=remote_host, config=config2, gateway=c1)
 
 all_connections = []
 vms = ['192.168.122.137','192.168.122.189','192.168.122.208']
+
 for i in vms:
     all_connections.append(Connection(host=i, config=config2, gateway=c1))
 
@@ -29,26 +30,28 @@ sudopass = Responder(pattern=r'\[sudo\] password:',
 
 
 def start_spark_cluster():
-    c2.run('source /etc/profile && cd /usr/local/spark/ && ./sbin/start-master.sh')
-    c2.run('cd /usr/local/spark && ./sbin/start-slaves.sh')
+    c2.run('source /etc/profile && $SPARK_HOME/sbin/start-all.sh')
+    # c2.run('cd /usr/local/spark && ./sbin/start-slaves.sh')
 
 def stop_spark_cluster():
-    c2.run('cd /usr/local/spark && ./sbin/stop-all.sh')
+    c2.run('source /etc/profile && $SPARK_HOME/stop-all.sh')
+    # c2.run('cd /usr/local/spark && ./sbin/stop-all.sh')
 
 
 def spark_submit():
-    c2.run('cd /usr/local/spark && bin/spark-submit --class org.apache.spark.examples.SparkPi --master spark://'+str(remote_host)+
+    c2.run('source /etc/profile && cd $SPARK_HOME && bin/spark-submit --class org.apache.spark.examples.SparkPi --master spark://'+str(remote_host)+
            ':7077 --executor-memory 2g ./examples/jars/spark-examples_2.12-3.0.0-preview2.jar 10000')
 
 def spark_test():
-    c2.run('source ~/.bashrc && env',replace_env=False)
+    # c2.run('source ~/.bashrc && env',replace_env=False)
+    c2.run('source /etc/profile && env')
 
 def restart_all_vms():
-    ## not complete
     for connection in all_connections:
-        # connection.reboot(wait=120,command='reboot',use_sudo=True)
-        # connection.run('sudo reboot', watchers=[sudopass])
-        connection.sudo('reboot')
+        try:
+            connection.sudo('shutdown -r now')
+        except:
+            continue
 
 def transfer_monitor():
     for connection in all_connections:
@@ -74,8 +77,4 @@ def stop_monitors():
         connection.run('pid=$(cat logs/pid) && kill -SIGTERM $pid')
 
 
-def test_pids():
-    for connection in all_connections:
-        pid = connection.run('cat logs/pid')
-        print(type(pid))
 
