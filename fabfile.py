@@ -6,7 +6,7 @@ from invoke import Responder
 from fabric2.transfer import Transfer
 import os
 
-with open('./conf/master','r') as f:
+with open('./conf/master', 'r') as f:
     array = f.readline().split()
     remote_host = array[0]
     remote_port = array[1]
@@ -14,12 +14,12 @@ with open('./conf/master','r') as f:
     host = array[3]
 
 config = Config(overrides={'user': user})
-c1 = Connection(host=host,config=config)
-config2 = Config(overrides={'user': user,'connect_kwargs':{'password':'1'}, 'sudo':{'password':'1'}})
+c1 = Connection(host=host, config=config)
+config2 = Config(overrides={'user': user, 'connect_kwargs': {'password': '1'}, 'sudo': {'password': '1'}})
 c2 = Connection(host=remote_host, config=config2, gateway=c1)
 
 all_connections = []
-vms = ['192.168.122.137','192.168.122.189','192.168.122.208']
+vms = ['192.168.122.137', '192.168.122.189', '192.168.122.208']
 
 for i in vms:
     all_connections.append(Connection(host=i, config=config2, gateway=c1))
@@ -33,18 +33,43 @@ def start_spark_cluster():
     c2.run('source /etc/profile && $SPARK_HOME/sbin/start-all.sh')
     # c2.run('cd /usr/local/spark && ./sbin/start-slaves.sh')
 
+
 def stop_spark_cluster():
-    c2.run('source /etc/profile && $SPARK_HOME/stop-all.sh')
+    c2.run('source /etc/profile && $SPARK_HOME/sbin/stop-all.sh')
     # c2.run('cd /usr/local/spark && ./sbin/stop-all.sh')
 
 
-def spark_submit():
-    c2.run('source /etc/profile && cd $SPARK_HOME && bin/spark-submit --class org.apache.spark.examples.SparkPi --master spark://'+str(remote_host)+
-           ':7077 --executor-memory 2g ./examples/jars/spark-examples_2.12-3.0.0-preview2.jar 10000')
+def spark_submit(size=10000):
+    c2.run(
+        'source /etc/profile && cd $SPARK_HOME && bin/spark-submit '
+        '--class org.apache.spark.examples.SparkPi '
+        '--master spark://' + str(remote_host) + ':7077 '
+        '--executor-memory 2g '
+        './examples/jars/spark-examples_2.12-3.0.0-preview2.jar '+str(size))
+
+def spark_submit_cluster(size=10000):
+    c2.run(
+        'source /etc/profile && cd $SPARK_HOME && bin/spark-submit '
+        '--class org.apache.spark.examples.SparkPi '
+        '--master spark://' + str(remote_host) +':7077 '
+        '--deploy-mode cluster '
+        '--supervise '
+        '--executor-memory 2g '
+        './examples/jars/spark-examples_2.12-3.0.0-preview2.jar '+str(size))
+
+
+def spark_submit_KMeans():
+    c2.run('source /etc/profile && cd $SPARK_HOME && bin/spark-submit '
+           '--class org.apache.spark.examples.mllib.KMeansExample '
+           '--master spark://' + str(remote_host) + ':7077 '
+                                                    '--executor-memory 2g '
+                                                    './examples/jars/spark-examples_2.12-3.0.0-preview2.jar')
+
 
 def spark_test():
     # c2.run('source ~/.bashrc && env',replace_env=False)
     c2.run('source /etc/profile && env')
+
 
 def restart_all_vms():
     for connection in all_connections:
@@ -52,6 +77,12 @@ def restart_all_vms():
             connection.sudo('shutdown -r now')
         except:
             continue
+    try:
+        c2.sudo('shutdown -r now')
+
+    except:
+        pass
+
 
 def transfer_monitor():
     for connection in all_connections:
@@ -61,20 +92,72 @@ def transfer_monitor():
         transfer.put('monitor.py')
         connection.run('mkdir logs')
 
+
 def transfer_logs_out():
     counter = 1
     for connection in all_connections:
         transfer = Transfer(connection)
-        transfer.get('logs/log.csv','log'+str(counter)+'.csv')
-        counter+=1
+        transfer.get('logs/log.csv', 'log' + str(counter) + '.csv')
+        counter += 1
+
 
 def start_monitors():
     for connection in all_connections:
         connection.run('nohup python3 ./monitor.py $1 >/dev/null 2>&1 &')
+
 
 def stop_monitors():
     for connection in all_connections:
         connection.run('pid=$(cat logs/pid) && kill -SIGTERM $pid')
 
 
+def transfer_file_to(filename):
+    transfer = Transfer(c2)
+    transfer.put(filename)
 
+
+def example_spark_submit():
+    c2.run(
+        'source /etc/profile && cd $SPARK_HOME && bin/spark-submit '
+        '--class org.apache.spark.examples.mllib.KMeansExample '
+        '--master spark://' + str(remote_host) + ':7077 '
+        '--executor-memory 2g ~/spark_example_2.12-0.1.jar')
+
+def example_uber():
+    # temporary
+    transfer = Transfer(c2)
+    transfer.put('/Users/ronnie/Documents/spark_example/target/scala-2.12/spark_example_2.12-0.1.jar')
+
+    c2.run(
+        'source /etc/profile && cd $SPARK_HOME && bin/spark-submit '
+        '--class uber.KMeansUber '
+        '--master spark://' + str(remote_host) + ':7077 '
+                                                 '--executor-memory 2g ~/spark_example_2.12-0.1.jar')
+
+
+def example_streaming():
+    # temporary
+    transfer = Transfer(c2)
+    transfer.put('/Users/ronnie/Documents/StreamingModeSpark/target/scala-2.12/streamingmodespark_2.12-0.1.jar')
+
+    c2.run(
+        'source /etc/profile && cd $SPARK_HOME && bin/spark-submit '
+        '--class example.stream.StructureStreaming '
+        '--master spark://' + str(remote_host) + ':7077 '
+        '--deploy-mode cluster '
+        '--executor-memory 100g '
+        '~/streamingmodespark_2.12-0.1.jar')
+
+
+def spark_test_ls():
+    c2.run('ls')
+
+
+def transfer_to_all(filename):
+    for connection in all_connections:
+        transfer = Transfer(connection)
+        transfer.put(filename)
+
+def start_nc():
+    for connection in all_connections:
+        connection.run('nohup nc -lk 9999 $1 >/dev/null 2>&1 &')
