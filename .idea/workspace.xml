@@ -2,12 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e45ff97a-396b-4a07-958d-0497be070c0a" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/close_ports.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/start_port_forwarding.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/conf/slaves" beforeDir="false" afterPath="$PROJECT_DIR$/conf/slaves" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/fabfile.py" beforeDir="false" afterPath="$PROJECT_DIR$/fabfile.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/run_spark.sh" beforeDir="false" afterPath="$PROJECT_DIR$/run_spark.sh" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -134,7 +130,9 @@
       <workItem from="1589096445311" duration="4315000" />
       <workItem from="1589270402549" duration="2151000" />
       <workItem from="1589342921323" duration="6267000" />
-      <workItem from="1590147528347" duration="814000" />
+      <workItem from="1590147528347" duration="2238000" />
+      <workItem from="1590327669749" duration="4466000" />
+      <workItem from="1590413235504" duration="2096000" />
     </task>
     <servers />
   </component>

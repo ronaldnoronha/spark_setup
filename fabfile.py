@@ -60,10 +60,10 @@ def spark_submit_cluster(size=10000):
 
 def spark_submit_KMeans():
     c2.run('source /etc/profile && cd $SPARK_HOME && bin/spark-submit '
-           '--class org.apache.spark.examples.mllib.KMeansExample '
-           '--master spark://' + str(remote_host) + ':7077 '
-                                                    '--executor-memory 2g '
-                                                    './examples/jars/spark-examples_2.12-3.0.0-preview2.jar')
+            '--class org.apache.spark.examples.mllib.KMeansExample '
+            '--master spark://' + str(remote_host) + ':7077 '
+            '--executor-memory 2g '
+            './examples/jars/spark-examples_2.12-3.0.0-preview2.jar')
 
 
 def spark_test():
@@ -134,6 +134,16 @@ def example_uber():
         '--master spark://' + str(remote_host) + ':7077 '
                                                  '--executor-memory 2g ~/spark_example_2.12-0.1.jar')
 
+def example_large_kmeans():
+    # temporary
+    transfer = Transfer(c2)
+    transfer.put('/Users/ronnie/Documents/spark_example/target/scala-2.12/spark_example_2.12-0.1.jar')
+
+    c2.run(
+        'source /etc/profile && cd $SPARK_HOME && bin/spark-submit '
+        '--class com.example.kmeans.KMeansExample '
+        '--master spark://' + str(remote_host) + ':7077 '
+        '--executor-memory 2g ~/spark_example_2.12-0.1.jar')
 
 def example_streaming():
     # temporary
