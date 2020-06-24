@@ -171,3 +171,27 @@ def transfer_to_all(filename):
 def start_nc():
     for connection in all_connections:
         connection.run('nohup nc -lk 9999 $1 >/dev/null 2>&1 &')
+
+
+def example_streaming_kmeans():
+    transfer = Transfer(c2)
+    transfer.put('/Users/ronnie/Documents/spark_example/target/scala-2.12/spark_example_2.12-0.1.jar')
+
+    c2.run(
+        'source /etc/profile && cd $SPARK_HOME && bin/spark-submit '
+        '--class com.example.kmeans.KMeansExample '
+        '--master spark://' + str(remote_host) + ':7077 '
+                                                 '--executor-memory 2g ~/spark_example_2.12-0.1.jar')
+
+def example_datagenerator():
+    transfer = Transfer(c2)
+    transfer.put('/Users/ronnie/Documents/StreamingModeSpark/target/scala-2.12/streamingmodespark_2.12-0.1.jar')
+
+    c2.run(
+        'source /etc/profile && cd $SPARK_HOME && bin/spark-submit '
+        '--class example.stream.DataGenerator '
+        '~/streamingmodespark_2.12-0.1.jar '
+        '10000 '
+        '~/100-bytes-lines.txt '
+        '100'
+    )
