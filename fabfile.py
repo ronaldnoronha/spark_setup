@@ -44,8 +44,8 @@ def spark_submit(size=10000):
         'source /etc/profile && cd $SPARK_HOME && bin/spark-submit '
         '--class org.apache.spark.examples.SparkPi '
         '--master spark://' + str(remote_host) + ':7077 '
-        '--executor-memory 2g '
-        './examples/jars/spark-examples_2.12-3.0.0-preview2.jar '+str(size))
+        '--executor-memory 10g '
+        './examples/jars/spark-examples_2.12-3.0.0.jar '+str(size))
 
 def spark_submit_cluster(size=10000):
     c2.run(
@@ -189,9 +189,35 @@ def example_datagenerator():
 
     c2.run(
         'source /etc/profile && cd $SPARK_HOME && bin/spark-submit '
+        '--packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.0.0 '
         '--class example.stream.DataGenerator '
         '~/streamingmodespark_2.12-0.1.jar '
         '10000 '
         '~/100-bytes-lines.txt '
         '100'
     )
+
+def example_kafka_trial():
+    transfer = Transfer(c2)
+    transfer.put('/Users/ronnie/Documents/spark_example/target/scala-2.12/spark_example_2.12-0.1.jar')
+    # transfer.put('/Users/ronnie/Documents/datagenerator/kafka_producer_example.py')
+    c2.run(
+        'source /etc/profile && cd $SPARK_HOME && bin/spark-submit '
+        '--packages org.apache.spark:spark-streaming-kafka-0-10_2.12:3.0.0 '
+        '--class example.stream.DirectKafkaWordCount '
+        '~/spark_example_2.12-0.1.jar '
+        'localhost:9092 '
+        'consumer-group '
+        'test'
+    )
+
+def start_kafka():
+    c2.run('tmux new -d -s kafka')
+    c2.run('tmux new-window')
+    c2.run('tmux send -t kafka:0 /home/ronald/kafka_2.12-2.5.0/bin/zookeeper-server-start.sh\ '
+           '/home/ronald/kafka_2.12-2.5.0/config/zookeeper.properties ENTER')
+    c2.run('tmux send -t kafka:1 /home/ronald/kafka_2.12-2.5.0/bin/kafka-server-start.sh\ '
+           '/home/ronald/kafka_2.12-2.5.0/config/server.properties ENTER')
+
+def stop_kafka():
+    c2.run('tmux kill-session -t kafka')

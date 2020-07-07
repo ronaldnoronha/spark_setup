@@ -137,7 +137,17 @@
       <workItem from="1591431330519" duration="290000" />
       <workItem from="1591773890098" duration="2946000" />
       <workItem from="1592191616191" duration="30000" />
-      <workItem from="1592970472089" duration="4058000" />
+      <workItem from="1592970472089" duration="4663000" />
+      <workItem from="1592980148485" duration="78000" />
+      <workItem from="1593053781687" duration="6055000" />
+      <workItem from="1593394386928" duration="1847000" />
+      <workItem from="1593488364661" duration="3376000" />
+      <workItem from="1593670199057" duration="1035000" />
+      <workItem from="1593746019583" duration="1547000" />
+      <workItem from="1593827563683" duration="371000" />
+      <workItem from="1593845520130" duration="1223000" />
+      <workItem from="1593914860216" duration="745000" />
+      <workItem from="1594020327724" duration="4529000" />
     </task>
     <servers />
   </component>
@@ -185,6 +195,10 @@
       <screen x="0" y="0" width="1440" height="900" />
     </state>
     <state x="221" y="89" key="SettingsEditor/0.0.1440.900@0.0.1440.900" timestamp="1587361739637" />
+    <state x="503" y="358" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1594093757925">
+      <screen x="0" y="23" width="1440" height="829" />
+    </state>
+    <state x="503" y="358" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.23.1440.829@0.23.1440.829" timestamp="1594093757925" />
     <state x="385" y="196" width="670" height="676" key="search.everywhere.popup" timestamp="1589364939257">
       <screen x="0" y="0" width="1440" height="900" />
     </state>
