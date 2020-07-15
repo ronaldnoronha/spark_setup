@@ -221,3 +221,18 @@ def start_kafka():
 
 def stop_kafka():
     c2.run('tmux kill-session -t kafka')
+
+def example_streaming_kmeans():
+    # transfer package
+    transfer = Transfer(c2)
+    transfer.put('/Users/ronnie/Documents/spark_example/target/scala-2.12/spark_example_2.12-0.1.jar')
+    # transfer sample files
+    c2.run(
+        'source /etc/profile && cd $SPARK_HOME && bin/spark-submit '
+        '--packages org.apache.spark:spark-streaming-kafka-0-10_2.12:3.0.0 '
+        '--class example.stream.StreamingKMeansModelExample '
+        '~/spark_example_2.12-0.1.jar '
+        'localhost:9092 '
+        'consumer-group '
+        'test'
+    )
